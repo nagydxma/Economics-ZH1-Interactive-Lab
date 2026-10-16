@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07111f">
+<title>Economics Interactive Lab — First Midterm</title>
+<style>
+:root{
+  --bg:#07111f;--bg2:#0a1730;--panel:#0f1f39;--panel2:#142845;--panel3:#0b1a31;
+  --line:#2b4363;--text:#eef6ff;--muted:#a9bdd3;--cyan:#45d6df;--blue:#6ba7ff;
+  --green:#72e4ad;--orange:#ffb36b;--pink:#ff7fa9;--yellow:#f3d66d;--red:#ff7686;
+  --shadow:0 18px 55px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:
+ radial-gradient(circle at 86% -8%,rgba(50,103,170,.35),transparent 34%),
+ radial-gradient(circle at 8% 15%,rgba(32,92,114,.18),transparent 30%),
+ linear-gradient(180deg,var(--bg),#081426 62%,#07111f);
+ color:var(--text);font:15.5px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+a{color:inherit}
+.app{min-height:100vh}
+.topbar{position:sticky;top:0;z-index:50;backdrop-filter:blur(16px);background:rgba(6,15,29,.78);
+ border-bottom:1px solid rgba(87,123,164,.22);display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:850;letter-spacing:.01em}
+.logo{width:34px;height:34px;border-radius:11px;background:
+ linear-gradient(135deg,var(--cyan),var(--blue));display:grid;place-items:center;color:#03101e;font-weight:1000;box-shadow:0 0 24px rgba(69,214,223,.22)}
+.topright{display:flex;align-items:center;gap:10px}
+.badge{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#10213b;
+ border-radius:999px;padding:7px 11px;color:var(--muted);font-size:12px;font-weight:750}
+.layout{max-width:1440px;margin:auto;display:grid;grid-template-columns:260px 1fr;gap:0}
+.sidebar{position:sticky;top:59px;height:calc(100vh - 59px);padding:20px 14px;border-right:1px solid rgba(87,123,164,.18);
+ background:rgba(8,18,34,.72);overflow:auto}
+.sidebar h4{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#7390ad;margin:18px 10px 8px}
+.navbtn{width:100%;display:flex;align-items:center;gap:11px;border:1px solid transparent;background:transparent;
+ color:var(--muted);padding:11px 12px;border-radius:12px;text-align:left;margin:4px 0;font-weight:720}
+.navbtn span.num{font-size:11px;color:#7794b1;border:1px solid #294564;border-radius:7px;padding:2px 6px}
+.navbtn:hover{background:#10213a;color:var(--text)}
+.navbtn.active{background:linear-gradient(135deg,rgba(69,214,223,.18),rgba(107,167,255,.10));border-color:#2e6172;color:#fff}
+.side-progress{margin:16px 9px 8px}
+.progressbar{height:8px;border-radius:999px;background:#172b47;overflow:hidden;border:1px solid #233d5c}
+.progressbar>div{height:100%;background:linear-gradient(90deg,var(--cyan),var(--blue));width:0%;transition:.35s}
+.side-note{font-size:12px;color:#7894b0;margin:8px 3px}
+.content{padding:28px 28px 80px;min-width:0}
+.screen{display:none;animation:fade .22s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:.3;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hero{padding:26px 0 12px}
+.kicker{font-size:12px;font-weight:850;color:var(--cyan);letter-spacing:.17em;text-transform:uppercase}
+h1{font-size:clamp(38px,5vw,68px);line-height:1.02;margin:8px 0 14px;letter-spacing:-.04em}
+h2{font-size:30px;line-height:1.15;margin:0 0 10px;letter-spacing:-.02em}
+h3{font-size:19px;margin:0 0 8px}
+h4{margin:0 0 6px}
+p{color:var(--muted);margin:8px 0 14px}
+.lead{font-size:18px;max-width:820px;color:#c1d1e4}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.card{grid-column:span 6;background:linear-gradient(160deg,rgba(21,41,70,.96),rgba(12,29,52,.96));
+ border:1px solid var(--line);border-radius:20px;padding:21px;box-shadow:var(--shadow);min-width:0}
+.card.full{grid-column:1/-1}
+.card.third{grid-column:span 4}
+.card.eight{grid-column:span 8}
+.card.four{grid-column:span 4}
+.card.soft{box-shadow:none;background:rgba(14,31,55,.78)}
+.mini-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid #31506e;background:#0c2038;
+ border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;color:#9ec8d7;letter-spacing:.05em}
+.highlight{color:var(--cyan)}
+.callout{border-left:3px solid var(--orange);background:rgba(255,179,107,.07);padding:12px 14px;border-radius:0 10px 10px 0;color:#f5dcc5}
+.hu{color:#e9d7c4}
+.term{border-bottom:1px dotted #83b4cb;cursor:help}
+.controls{display:grid;gap:15px;margin-top:14px}
+.control label{display:flex;justify-content:space-between;gap:14px;font-weight:760;font-size:13px}
+.control label b{color:var(--cyan)}
+input[type=range]{width:100%;accent-color:var(--cyan);margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:15px 0}
+.stat{background:#09192e;border:1px solid #243e5c;border-radius:13px;padding:12px}
+.stat small{display:block;color:#7f9ab8;font-size:11px;text-transform:uppercase;letter-spacing:.07em}
+.stat strong{display:block;font-size:23px;margin-top:2px}
+.btn{border:1px solid #31506f;background:#132a48;color:#edf6ff;padding:10px 13px;border-radius:11px;font-weight:780}
+.btn:hover{border-color:#4f829f}
+.btn.primary{background:linear-gradient(135deg,var(--cyan),#78b5ff);color:#041323;border:none}
+.btn.ghost{background:transparent}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+svg.chart{width:100%;height:auto;background:#08182d;border:1px solid #27405f;border-radius:14px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;color:#8fa9c5;font-size:12px;margin-top:9px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
+.learnpath{display:grid;grid-template-columns:repeat(5,1fr);gap:11px;margin-top:18px}
+.pathstep{border:1px solid #29445f;background:#0d213a;border-radius:14px;padding:13px}
+.pathstep b{display:block;color:#fff}
+.pathstep span{font-size:12px;color:#819db9}
+.concept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.concept{background:#0a1d34;border:1px solid #29445f;border-radius:13px;padding:14px}
+.concept b{color:var(--text)}
+.concept p{font-size:13px;margin:5px 0 0}
+.flow{display:grid;grid-template-columns:1fr 70px 1fr;gap:12px;align-items:center;margin-top:14px}
+.entity{background:#0c2039;border:1px solid #31516f;border-radius:15px;padding:20px;text-align:center}
+.flowmid{display:grid;gap:9px}
+.arrow{font-size:24px;text-align:center;color:var(--cyan)}
+.slider-note{font-size:12px;color:#7e99b6;margin-top:5px}
+.formula{font:800 19px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--green);
+ background:#0a1c31;border:1px solid #284a52;border-radius:11px;padding:12px;margin:12px 0}
+.table{width:100%;border-collapse:collapse;margin-top:10px}
+.table th,.table td{border-bottom:1px solid #28425f;padding:9px 8px;text-align:right}
+.table th:first-child,.table td:first-child{text-align:left}
+.table th{color:#89a6c3;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.scenario{border:1px solid #2d4865;background:#0b1d35;border-radius:14px;padding:14px;margin:10px 0}
+.scenario h4{display:flex;align-items:center;justify-content:space-between}
+.answerbox{border-radius:12px;padding:12px;background:#091a2e;border:1px solid #29445f;min-height:50px}
+.option{display:block;width:100%;text-align:left;border:1px solid #2d4865;background:#112643;color:#eef6ff;
+ border-radius:11px;padding:11px 13px;margin:8px 0}
+.option:hover{border-color:#4d7b98}
+.option.correct{background:#174b37;border-color:var(--green)}
+.option.wrong{background:#512b3b;border-color:var(--pink)}
+.meter{height:9px;border-radius:999px;background:#1a2f4a;overflow:hidden}
+.meter div{height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));width:0%;transition:.3s}
+.flashcard{min-height:260px;display:grid;place-items:center;text-align:center;cursor:pointer;perspective:1000px}
+.flashinner{width:100%;height:260px;position:relative;transition:transform .55s;transform-style:preserve-3d}
+.flashcard.flipped .flashinner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid #34516d;border-radius:16px;background:#0b1e36;
+ display:grid;place-items:center;padding:26px}
+.face.back{transform:rotateY(180deg);background:#102844}
+.face .big{font-size:27px;font-weight:850}
+.tip{font-size:11px;color:#7996b2;margin-top:14px}
+.glossary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.gloss{border:1px solid #2b4664;background:#0b1c33;border-radius:12px;padding:12px}
+.gloss b{color:var(--cyan)}
+.lessoncheck{display:flex;align-items:center;gap:9px;color:#91abc5;font-size:13px;margin-top:12px}
+.lessoncheck input{width:auto}
+.footer{margin-top:36px;border-top:1px solid #1f3653;padding-top:18px;color:#708ba7;font-size:12px}
+.toast{position:fixed;right:22px;bottom:22px;background:#0c213b;border:1px solid #34506c;color:#eaf4ff;
+ padding:12px 15px;border-radius:12px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transform:translateY(8px);transition:.25s;z-index:100}
+.toast.show{opacity:1;transform:none}
+@media(max-width:1100px){.layout{grid-template-columns:210px 1fr}.content{padding:24px 18px 70px}.concept-grid{grid-template-columns:1fr 1fr}.learnpath{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:820px){.layout{display:block}.sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid #203754;display:flex;overflow:auto;padding:10px}.sidebar h4,.side-progress,.side-note{display:none}.navbtn{min-width:max-content;width:auto}.navbtn span.num{display:none}.content{padding:20px 14px 70px}.card,.card.third,.card.eight,.card.four{grid-column:1/-1}.learnpath,.concept-grid,.glossary{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr}.flowmid{grid-template-columns:1fr 1fr}.arrow{transform:rotate(90deg)}.topright .badge:first-child{display:none}}
+@media(max-width:520px){.stats{grid-template-columns:1fr}.topbar{padding:10px 12px}.brand span:last-child{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><div class="logo">E</div><span>Economics Interactive Lab</span></div>
+    <div class="topright">
+      <span class="badge">First Midterm • Chapters 1–4</span>
+      <button class="btn ghost" id="resetProgress">Reset progress</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <h4>Learn</h4>
+      <button class="navbtn active" data-screen="home"><span class="num">00</span> Dashboard</button>
+      <button class="navbtn" data-screen="principles"><span class="num">01</span> Decisions & Principles</button>
+      <button class="navbtn" data-screen="thinking"><span class="num">02</span> Thinking like an Economist</button>
+      <button class="navbtn" data-screen="trade"><span class="num">03</span> Comparative Advantage</button>
+      <button class="navbtn" data-screen="market"><span class="num">04</span> Supply & Demand</button>
+      <h4>Practice</h4>
+      <button class="navbtn" data-screen="challenge"><span class="num">05</span> Scenario Lab</button>
+      <button class="navbtn" data-screen="quiz"><span class="num">06</span> Exam Quiz</button>
+      <button class="navbtn" data-screen="flash"><span class="num">07</span> Flashcards & Glossary</button>
+      <div class="side-progress"><div class="meter"><div id="globalProgress"></div></div><div class="side-note" id="progressText">0% complete</div></div>
+    </aside>
+
+    <main class="content">
+
+      <section class="screen active" id="home">
+        <div class="hero">
+          <div class="kicker">Interactive companion for your first economics midterm</div>
+          <h1>Learn the logic.<br><span class="highlight">Not just the definitions.</span></h1>
+          <p class="lead">This version is built like a small learning app: guided explanations, live graphs, numerical models, scenarios, a quiz bank, flashcards, and saved progress. The language is mainly English; short Hungarian notes are only there when they make the intuition easier.</p>
+          <div class="btnrow">
+            <button class="btn primary" data-go="principles">Start from zero →</button>
+            <button class="btn" data-go="market">Open market simulator</button>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card full">
+            <div class="mini-title"><h3>Your learning path</h3><span class="pill">Predict → Manipulate → Explain → Test</span></div>
+            <div class="learnpath">
+              <div class="pathstep"><b>1 · Choice</b><span>Scarcity, trade-offs, opportunity cost</span></div>
+              <div class="pathstep"><b>2 · Models</b><span>Circular flow, PPF, positive vs normative</span></div>
+              <div class="pathstep"><b>3 · Trade</b><span>Absolute vs comparative advantage</span></div>
+              <div class="pathstep"><b>4 · Markets</b><span>Demand, supply, shifts, equilibrium</span></div>
+              <div class="pathstep"><b>5 · Apply</b><span>Scenarios, equations, exam questions</span></div>
+            </div>
+          </div>
+          <div class="card third"><div class="pill">Core idea</div><h3>Scarcity → choice</h3><p>Limited resources force people and societies to choose. Every choice creates a trade-off.</p></div>
+          <div class="card third"><div class="pill">Core idea</div><h3>Opportunity cost</h3><p>The true economic cost of a choice is the value of the next-best alternative you give up.</p></div>
+          <div class="card third"><div class="pill">Core idea</div><h3>Equilibrium</h3><p>Markets coordinate buyers and sellers through prices. Equilibrium is where planned buying equals planned selling.</p></div>
+        </div>
+      </section>
+
+      <section class="screen" id="principles">
+        <div class="hero"><div class="kicker">Chapter 1</div><h2>Decisions, trade-offs and incentives</h2><p class="lead">Start with the economic way of thinking: choices are constrained, costs include foregone alternatives, and good decisions compare marginal benefits with marginal costs.</p></div>
+        <div class="grid">
+          <div class="card eight">
+            <div class="mini-title"><h3>Opportunity Cost Lab</h3><span class="pill">interactive</span></div>
+            <p>You have <b>6 free hours</b>. You can study Economics or work for an hourly wage. Move the sliders and watch the cost of studying change.</p>
+            <div class="controls">
+              <div class="control"><label>Study time <b id="pStudyTxt">3 h</b></label><input id="pStudy" type="range" min="0" max="6" step=".5" value="3"></div>
+              <div class="control"><label>Hourly wage <b id="pWageTxt">3000 Ft</b></label><input id="pWage" type="range" min="1500" max="6000" step="250" value="3000"></div>
+            </div>
+            <div class="stats">
+              <div class="stat"><small>Work time</small><strong id="pWork">3 h</strong></div>
+              <div class="stat"><small>Income earned</small><strong id="pIncome">9 000 Ft</strong></div>
+              <div class="stat"><small>Opportunity cost of study</small><strong id="pOC">9 000 Ft</strong></div>
+            </div>
+            <div class="callout hu"><b>Magyar intuition:</b> ha a legjobb alternatíva a munka, akkor a tanulás opportunity costja az a bér, amit a tanulással töltött idő miatt nem keresel meg.</div>
+          </div>
+          <div class="card four">
+            <h3>Marginal decision rule</h3>
+            <p>A rational decision-maker asks whether <b>one more unit</b> is worth it.</p>
+            <div class="control"><label>Marginal Benefit <b id="mbTxt">4500</b></label><input id="mb" type="range" min="0" max="8000" step="250" value="4500"></div>
+            <div class="control"><label>Marginal Cost <b id="mcTxt">3000</b></label><input id="mc" type="range" min="0" max="8000" step="250" value="3000"></div>
+            <div class="formula" id="marginalRule">MB > MC → increase activity</div>
+            <p class="slider-note">The decision changes exactly when MB crosses MC.</p>
+          </div>
+          <div class="card full">
+            <div class="mini-title"><h3>The Ten Principles — compressed mental map</h3><span class="pill">exam-ready</span></div>
+            <div class="concept-grid">
+              <div class="concept"><b>1. Trade-offs</b><p>Getting more of one objective usually means giving up something else.</p></div>
+              <div class="concept"><b>2. Opportunity cost</b><p>The cost of a choice is what you give up to get it.</p></div>
+              <div class="concept"><b>3. Think at the margin</b><p>Compare additional benefit with additional cost.</p></div>
+              <div class="concept"><b>4. Incentives matter</b><p>People react when costs or rewards change.</p></div>
+              <div class="concept"><b>5. Trade can help</b><p>Specialization can make both sides better off.</p></div>
+              <div class="concept"><b>6. Markets coordinate</b><p>Prices guide decentralized decisions.</p></div>
+              <div class="concept"><b>7. Government can improve outcomes</b><p>Especially with market failure or distribution goals.</p></div>
+              <div class="concept"><b>8. Productivity drives living standards</b><p>More output per worker supports higher real incomes.</p></div>
+              <div class="concept"><b>9. Too much money → inflation</b><p>Persistent money growth can create sustained price increases.</p></div>
+              <div class="concept"><b>10. Short-run inflation–unemployment trade-off</b><p>Aggregate demand changes may temporarily affect both.</p></div>
+            </div>
+            <label class="lessoncheck"><input type="checkbox" data-done="principles"> I can explain these ideas without looking at the notes.</label>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="thinking">
+        <div class="hero"><div class="kicker">Chapter 2</div><h2>Thinking like an Economist</h2><p class="lead">Economists simplify reality with models. The point of a model is not to copy everything — it is to isolate the mechanism you want to understand.</p></div>
+        <div class="grid">
+          <div class="card full">
+            <div class="mini-title"><h3>Circular-flow model</h3><span class="pill">real flows + money flows</span></div>
+            <div class="flow">
+              <div class="entity"><div style="font-size:28px">🏠</div><h3>Households</h3><p>Own factors of production and buy goods & services.</p></div>
+              <div class="flowmid"><div class="arrow">⇄</div><div class="arrow">⇄</div></div>
+              <div class="entity"><div style="font-size:28px">🏢</div><h3>Firms</h3><p>Hire factors of production and sell goods & services.</p></div>
+            </div>
+            <table class="table">
+              <tr><th>Market</th><th>Households</th><th>Firms</th></tr>
+              <tr><td>Markets for goods & services</td><td>Buyers → spending</td><td>Sellers → revenue</td></tr>
+              <tr><td>Markets for factors of production</td><td>Sellers → labor, land, capital</td><td>Buyers → wages, rent, payments</td></tr>
+            </table>
+            <div class="callout hu"><b>Magyar intuition:</b> ugyanazt a gazdaságot két irányban nézed: a <i>real flow</i> az erőforrások és termékek mozgása, a <i>money flow</i> pedig az ellenkező irányú pénzáramlás.</div>
+          </div>
+          <div class="card eight">
+            <div class="mini-title"><h3>PPF Simulator</h3><span class="pill">live curve</span></div>
+            <p>Imagine the economy produces only <b>food</b> and <b>computers</b>. Change resources, technology and utilization.</p>
+            <div class="controls">
+              <div class="control"><label>Food production <b id="foodTxt">50</b></label><input id="food" type="range" min="0" max="100" value="50"></div>
+              <div class="control"><label>Resources / technology <b id="techTxt">100%</b></label><input id="tech" type="range" min="70" max="150" step="10" value="100"></div>
+              <div class="control"><label>Resource utilization <b id="utilTxt">100%</b></label><input id="util" type="range" min="40" max="100" step="10" value="100"></div>
+            </div>
+            <div class="stats">
+              <div class="stat"><small>Food</small><strong id="foodStat">50</strong></div>
+              <div class="stat"><small>Computers</small><strong id="computerStat">—</strong></div>
+              <div class="stat"><small>Status</small><strong id="ppfStatus" style="font-size:18px">Efficient</strong></div>
+            </div>
+          </div>
+          <div class="card four">
+            <svg class="chart" id="ppfChart" viewBox="0 0 520 390"></svg>
+            <div class="legend"><span><i class="dot" style="background:var(--green)"></i>Original PPF</span><span><i class="dot" style="background:var(--cyan)"></i>Current PPF</span><span><i class="dot" style="background:var(--orange)"></i>Your point</span></div>
+          </div>
+          <div class="card full">
+            <h3>Positive vs Normative</h3>
+            <div class="grid" style="gap:10px">
+              <div class="card soft"><b>Positive statement</b><p>Describes how the world works and can, in principle, be tested with evidence.</p><div class="scenario">“A higher minimum wage reduces employment for some workers.”</div></div>
+              <div class="card soft"><b>Normative statement</b><p>Expresses a value judgment about how the world should be.</p><div class="scenario">“The government should raise the minimum wage.”</div></div>
+            </div>
+            <label class="lessoncheck"><input type="checkbox" data-done="thinking"> I can explain the circular flow, read a PPF and distinguish positive from normative statements.</label>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="trade">
+        <div class="hero"><div class="kicker">Chapter 3</div><h2>Comparative Advantage & Gains from Trade</h2><p class="lead">The key distinction: <b>absolute advantage</b> asks who is more productive; <b>comparative advantage</b> asks who gives up less of something else.</p></div>
+        <div class="grid">
+          <div class="card seven eight">
+            <h3>Production table</h3>
+            <p>Each person has one hour. Set how many units of coffee or bread they could produce if they spent the whole hour on only that good.</p>
+            <div class="controls">
+              <div class="control"><label>Alex — coffee/hour <b id="acTxt">6</b></label><input id="ac" type="range" min="1" max="12" value="6"></div>
+              <div class="control"><label>Alex — bread/hour <b id="abTxt">3</b></label><input id="ab" type="range" min="1" max="12" value="3"></div>
+              <div class="control"><label>Blair — coffee/hour <b id="bcTxt">4</b></label><input id="bc" type="range" min="1" max="12" value="4"></div>
+              <div class="control"><label>Blair — bread/hour <b id="bbTxt">4</b></label><input id="bb" type="range" min="1" max="12" value="4"></div>
+            </div>
+            <table class="table">
+              <tr><th>Producer</th><th>Coffee/h</th><th>Bread/h</th><th>OC of 1 coffee</th><th>OC of 1 bread</th></tr>
+              <tr><td>Alex</td><td id="taC">6</td><td id="taB">3</td><td id="taOCc">0.50 bread</td><td id="taOCb">2.00 coffee</td></tr>
+              <tr><td>Blair</td><td id="tbC">4</td><td id="tbB">4</td><td id="tbOCc">1.00 bread</td><td id="tbOCb">1.00 coffee</td></tr>
+            </table>
+          </div>
+          <div class="card four">
+            <h3>Who has comparative advantage?</h3>
+            <svg class="chart" id="tradeChart" viewBox="0 0 500 290"></svg>
+            <div class="answerbox" id="tradeAnswer"></div>
+          </div>
+          <div class="card full">
+            <h3>Terms of Trade Finder</h3>
+            <p>A mutually beneficial price for one unit of coffee must lie <b>between the two producers’ opportunity costs</b> of coffee.</p>
+            <div class="formula" id="tradeRange">Mutually beneficial range: 0.50 &lt; price of 1 coffee &lt; 1.00 bread</div>
+            <div class="control"><label>Proposed trade price: 1 coffee for <b id="tradePriceTxt">0.75 bread</b></label><input id="tradePrice" type="range" min="0.10" max="3" step="0.05" value="0.75"></div>
+            <div class="answerbox" id="tradePriceResult"></div>
+            <div class="callout hu"><b>Magyar intuition:</b> a cserearány akkor lehet mindkét félnek jó, ha a két opportunity cost közé esik. Így mindketten olcsóbban “jutnak” a másik termékhez, mint ha maguk termelnék.</div>
+            <label class="lessoncheck"><input type="checkbox" data-done="trade"> I can calculate opportunity costs and identify comparative advantage.</label>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="market">
+        <div class="hero"><div class="kicker">Chapter 4</div><h2>Supply, Demand & Market Equilibrium</h2><p class="lead">This simulator connects the graph, the equations and the verbal explanation. Change one thing at a time and predict the result before moving the slider.</p></div>
+        <div class="grid">
+          <div class="card eight">
+            <div class="mini-title"><h3>Market Simulator</h3><span class="pill">Qd = 120 + D − P · Qs = S + P</span></div>
+            <div class="btnrow">
+              <button class="btn" data-market-scene="0,0">Reset</button>
+              <button class="btn" data-market-scene="25,0">🔥 Demand boom</button>
+              <button class="btn" data-market-scene="-25,0">📉 Demand fall</button>
+              <button class="btn" data-market-scene="0,-25">🧀 Higher input costs</button>
+              <button class="btn" data-market-scene="0,25">⚙️ Better technology</button>
+            </div>
+            <div class="controls">
+              <div class="control"><label>Demand shift <b id="dTxt">0</b></label><input id="dShift" type="range" min="-40" max="40" value="0"></div>
+              <div class="control"><label>Supply shift <b id="sTxt">0</b></label><input id="sShift" type="range" min="-40" max="40" value="0"></div>
+              <div class="control"><label>Test a market price <b id="pTxt">60</b></label><input id="testPrice" type="range" min="10" max="110" value="60"></div>
+            </div>
+            <div class="stats">
+              <div class="stat"><small>Equilibrium price</small><strong id="eqPrice">60</strong></div>
+              <div class="stat"><small>Equilibrium quantity</small><strong id="eqQty">60</strong></div>
+              <div class="stat"><small>At tested price</small><strong id="marketState" style="font-size:18px">Equilibrium</strong></div>
+            </div>
+            <div class="answerbox" id="marketNarrative"></div>
+          </div>
+          <div class="card four">
+            <svg class="chart" id="marketChart" viewBox="0 0 520 410"></svg>
+            <div class="legend"><span><i class="dot" style="background:var(--cyan)"></i>Demand</span><span><i class="dot" style="background:var(--orange)"></i>Supply</span><span><i class="dot" style="background:var(--green)"></i>Equilibrium</span><span><i class="dot" style="background:var(--pink)"></i>Test price</span></div>
+          </div>
+          <div class="card full">
+            <div class="mini-title"><h3>Equation Solver</h3><span class="pill">algebra + graph</span></div>
+            <p>Set linear demand and supply equations and solve the equilibrium yourself.</p>
+            <div class="grid" style="gap:12px">
+              <div class="card soft">
+                <h4>Demand: Qd = A − bP</h4>
+                <div class="control"><label>A <b id="aTxt">120</b></label><input id="aDem" type="range" min="60" max="220" value="120"></div>
+                <div class="control"><label>b <b id="bTxt">1.0</b></label><input id="bDem" type="range" min=".5" max="2.5" step=".1" value="1"></div>
+              </div>
+              <div class="card soft">
+                <h4>Supply: Qs = C + dP</h4>
+                <div class="control"><label>C <b id="cTxt">0</b></label><input id="cSup" type="range" min="-50" max="50" value="0"></div>
+                <div class="control"><label>d <b id="ddTxt">1.0</b></label><input id="dSup" type="range" min=".5" max="2.5" step=".1" value="1"></div>
+              </div>
+            </div>
+            <div class="formula" id="eqFormula"></div>
+            <div class="answerbox" id="eqSteps"></div>
+            <label class="lessoncheck"><input type="checkbox" data-done="market"> I can distinguish movement along a curve from a curve shift and solve equilibrium.</label>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="challenge">
+        <div class="hero"><div class="kicker">Application Lab</div><h2>Predict the graph before seeing the answer</h2><p class="lead">This is where the concepts become useful. For each scenario, decide which curve moves, in which direction, and what happens to equilibrium price and quantity.</p></div>
+        <div class="grid">
+          <div class="card eight">
+            <div class="pill" id="scenarioNum">Scenario 1 / 8</div>
+            <h2 id="scenarioTitle" style="margin-top:12px"></h2>
+            <p id="scenarioText"></p>
+            <div class="btnrow" id="scenarioAnswers"></div>
+            <div class="answerbox" id="scenarioFeedback" style="margin-top:15px"></div>
+            <div class="btnrow" style="margin-top:12px"><button class="btn primary" id="nextScenario" style="display:none">Next scenario →</button></div>
+          </div>
+          <div class="card four">
+            <h3>Three-step method</h3>
+            <p><b>1.</b> Which curve is affected?</p>
+            <p><b>2.</b> Does it shift left or right?</p>
+            <p><b>3.</b> Compare old and new equilibrium.</p>
+            <div class="callout hu">ZH-n először mindig ezt a három lépést futtasd végig fejben. Így sokkal kisebb eséllyel kevered össze a shiftet a movementtel.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="quiz">
+        <div class="hero"><div class="kicker">Exam Practice</div><h2>20-question mixed quiz</h2><p class="lead">Definitions, reasoning, diagrams, trade logic and market shifts. The app explains every answer and remembers your best score in this browser.</p></div>
+        <div class="grid">
+          <div class="card eight">
+            <div class="mini-title"><span class="pill" id="quizCounter">Question 1 / 20</span><span class="pill" id="bestScore">Best: —</span></div>
+            <div class="meter"><div id="quizMeter"></div></div>
+            <h2 id="quizQuestion" style="margin-top:18px"></h2>
+            <div id="quizOptions"></div>
+            <div class="answerbox" id="quizFeedback"></div>
+            <div class="btnrow" style="margin-top:12px"><button class="btn primary" id="quizNext" style="display:none">Next →</button><button class="btn" id="quizRestart" style="display:none">Try again</button></div>
+          </div>
+          <div class="card four">
+            <h3>Score</h3>
+            <div style="font-size:54px;font-weight:900;color:var(--cyan)" id="scoreNow">0</div>
+            <p>Focus on the explanation, not only whether your answer was correct.</p>
+            <div class="callout hu">Ha valamit elrontasz, próbáld meg angolul kimondani, <i>miért</i> volt rossz az első gondolatmenet.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="flash">
+        <div class="hero"><div class="kicker">Fast Revision</div><h2>Flashcards & Glossary</h2><p class="lead">Click the card to flip it. Use this after the interactive labs, when the concepts already make sense.</p></div>
+        <div class="grid">
+          <div class="card eight">
+            <div class="mini-title"><span class="pill" id="flashCount">1 / 12</span><div class="btnrow"><button class="btn" id="flashPrev">←</button><button class="btn" id="flashNext">→</button></div></div>
+            <div class="flashcard" id="flashcard"><div class="flashinner"><div class="face front"><div><div class="big" id="flashFront"></div><div class="tip">tap to reveal</div></div></div><div class="face back"><div><div class="big" id="flashBack"></div><div class="tip hu" id="flashHu"></div></div></div></div></div>
+          </div>
+          <div class="card four">
+            <h3>How to revise efficiently</h3>
+            <p><b>Pass 1:</b> answer out loud in English.</p>
+            <p><b>Pass 2:</b> draw the relevant graph from memory.</p>
+            <p><b>Pass 3:</b> explain one example in Hungarian if the logic still feels fuzzy.</p>
+          </div>
+          <div class="card full">
+            <h3>Glossary</h3>
+            <div class="glossary" id="glossary"></div>
+            <label class="lessoncheck"><input type="checkbox" data-done="flash"> I can recall the core terminology without prompts.</label>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer">Economics Interactive Lab · standalone single-file learning app · progress saved locally in your browser · simplified models are used for learning and visualization.</div>
+    </main>
+  </div>
+</div>
+<div class="toast" id="toast">Progress saved</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.round(n).toLocaleString('hu-HU');
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const storageKey='econ-lab-progress-v2';
+
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1200)}
+
+document.querySelectorAll('[data-screen]').forEach(btn=>btn.addEventListener('click',()=>go(btn.dataset.screen)));
+document.querySelectorAll('[data-go]').forEach(btn=>btn.addEventListener('click',()=>go(btn.dataset.go)));
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('[data-screen]').forEach(b=>b.classList.toggle('active',b.dataset.screen===id));
+  $(id).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'});
+}
+
+let progress=JSON.parse(localStorage.getItem(storageKey)||'{}');
+function updateProgress(){
+  const keys=['principles','thinking','trade','market','flash'];
+  let done=keys.filter(k=>progress[k]).length;
+  const pct=Math.round(done/keys.length*100);
+  $('globalProgress').style.width=pct+'%';$('progressText').textContent=pct+'% complete';
+  document.querySelectorAll('[data-done]').forEach(x=>x.checked=!!progress[x.dataset.done]);
+}
+document.querySelectorAll('[data-done]').forEach(x=>x.addEventListener('change',()=>{progress[x.dataset.done]=x.checked;localStorage.setItem(storageKey,JSON.stringify(progress));updateProgress();toast('Progress saved')}));
+$('resetProgress').onclick=()=>{if(confirm('Reset saved lesson progress and best quiz score?')){localStorage.removeItem(storageKey);localStorage.removeItem('econ-best-v2');progress={};updateProgress();renderBest();toast('Progress reset')}};
+updateProgress();
+
+function line(x1,y1,x2,y2,c='#9db6ce',w=2,d=''){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}" ${d?`stroke-dasharray="${d}"`:''}/>`}
+function text(x,y,s,c='#a8bed4',size=12,anchor='start'){return `<text x="${x}" y="${y}" fill="${c}" font-size="${size}" text-anchor="${anchor}" font-family="system-ui">${s}</text>`}
+function axes(W=520,H=390,x='Quantity',y='Price'){
+  let g='';for(let i=0;i<5;i++)g+=line(60,45+i*65,485,45+i*65,'#203a57',1);
+  return g+line(60,30,60,H-48,'#9db6ce')+line(60,H-48,492,H-48,'#9db6ce')+text(275,H-14,x,'#93abc3',12,'middle')+text(21,24,y,'#93abc3',12,'middle');
+}
+
+/* CH1 */
+function principlesLab(){
+  const h=+$('pStudy').value,w=+$('pWage').value,mb=+$('mb').value,mc=+$('mc').value;
+  $('pStudyTxt').textContent=h+' h';$('pWageTxt').textContent=fmt(w)+' Ft';
+  $('pWork').textContent=(6-h)+' h';$('pIncome').textContent=fmt((6-h)*w)+' Ft';$('pOC').textContent=fmt(h*w)+' Ft';
+  $('mbTxt').textContent=fmt(mb);$('mcTxt').textContent=fmt(mc);
+  $('marginalRule').textContent=mb>mc?'MB > MC → increase the activity':mb<mc?'MB < MC → decrease / stop at the margin':'MB = MC → indifferent at the margin';
+}
+['pStudy','pWage','mb','mc'].forEach(id=>$(id).oninput=principlesLab);principlesLab();
+
+/* PPF */
+function ppf(){
+  const food=+$('food').value,g=+$('tech').value/100,u=+$('util').value/100,maxFood=100*g;
+  const frontier=80*g*(1-Math.pow(Math.min(food/maxFood,1),2));
+  const comp=Math.max(0,frontier*u);
+  $('foodTxt').textContent=food;$('techTxt').textContent=Math.round(g*100)+'%';$('utilTxt').textContent=Math.round(u*100)+'%';
+  $('foodStat').textContent=food;$('computerStat').textContent=comp.toFixed(1);
+  $('ppfStatus').textContent=food>maxFood?'Unattainable':u===1?'Efficient':'Inefficient';
+  const X=v=>60+v/160*425,Y=v=>342-v/125*290;
+  const curve=(scale,c,d='')=>{let pts=[];for(let i=0;i<=100;i++){let x=i*scale,y=80*scale*(1-(i/100)**2);pts.push(`${X(x)},${Y(y)}`)}return `<polyline points="${pts.join(' ')}" fill="none" stroke="${c}" stroke-width="3" ${d?`stroke-dasharray="${d}"`:''}/>`};
+  $('ppfChart').innerHTML=axes(520,390,'Food','Computers')+curve(1,'#72e4ad','7 6')+curve(g,'#45d6df')+
+    line(X(food),Y(comp),X(food),342,'#ffb36b',1,'4 4')+line(60,Y(comp),X(food),Y(comp),'#ffb36b',1,'4 4')+
+    `<circle cx="${X(food)}" cy="${Y(comp)}" r="7" fill="#ffb36b" stroke="#fff" stroke-width="2"/>`+text(X(food)+10,Y(comp)-11,'Your point','#ffb36b',12);
+}
+['food','tech','util'].forEach(id=>$(id).oninput=ppf);ppf();
+
+/* TRADE */
+function trade(){
+  const ac=+$('ac').value,ab=+$('ab').value,bc=+$('bc').value,bb=+$('bb').value;
+  const aOCc=ab/ac,bOCc=bb/bc,aOCb=ac/ab,bOCb=bc/bb;
+  [['acTxt',ac],['abTxt',ab],['bcTxt',bc],['bbTxt',bb],['taC',ac],['taB',ab],['tbC',bc],['tbB',bb]].forEach(([id,v])=>$(id).textContent=v);
+  $('taOCc').textContent=aOCc.toFixed(2)+' bread';$('tbOCc').textContent=bOCc.toFixed(2)+' bread';$('taOCb').textContent=aOCb.toFixed(2)+' coffee';$('tbOCb').textContent=bOCb.toFixed(2)+' coffee';
+  const winner=(a,b)=>Math.abs(a-b)<1e-9?'Tie':a<b?'Alex':'Blair';
+  const coffeeWinner=winner(aOCc,bOCc),breadWinner=winner(aOCb,bOCb);
+  $('tradeAnswer').innerHTML=`<b>Comparative advantage in coffee:</b> <span style="color:var(--green)">${coffeeWinner}</span><br><b>Comparative advantage in bread:</b> <span style="color:var(--orange)">${breadWinner}</span>`;
+  const m=Math.max(aOCc,bOCc,1),W=v=>v/m*300;
+  $('tradeChart').innerHTML=text(35,28,'OC of 1 coffee (bread units)','#eef6ff',15)+text(45,95,'Alex','#eef6ff',14)+
+  `<rect x="120" y="68" width="${W(aOCc)}" height="38" rx="7" fill="#45d6df"/>`+text(127+W(aOCc),94,aOCc.toFixed(2),'#fff',13)+
+  text(45,170,'Blair','#eef6ff',14)+`<rect x="120" y="143" width="${W(bOCc)}" height="38" rx="7" fill="#ffb36b"/>`+text(127+W(bOCc),169,bOCc.toFixed(2),'#fff',13)+
+  text(35,245,'Lower bar = lower opportunity cost','#8ca6c0',12);
+  const lo=Math.min(aOCc,bOCc),hi=Math.max(aOCc,bOCc);
+  $('tradeRange').innerHTML=Math.abs(lo-hi)<1e-9?'Equal opportunity costs → no mutually advantageous interval from specialization alone.':`Mutually beneficial range: <b>${lo.toFixed(2)} &lt; price of 1 coffee &lt; ${hi.toFixed(2)} bread</b>`;
+  const maxSlider=Math.max(3,hi*1.6);$('tradePrice').max=maxSlider.toFixed(2);
+  const tp=+$('tradePrice').value;$('tradePriceTxt').textContent=tp.toFixed(2)+' bread';
+  $('tradePriceResult').innerHTML=Math.abs(lo-hi)<1e-9?'Both producers have the same opportunity cost in this setup.':tp>lo&&tp<hi?'<span style="color:var(--green)"><b>Inside the range.</b> This price can make both sides better off.</span>':'<span style="color:var(--pink)"><b>Outside the range.</b> At least one side would prefer producing coffee itself rather than trading at this rate.</span>';
+}
+['ac','ab','bc','bb','tradePrice'].forEach(id=>$(id).oninput=trade);trade();
+
+/* MARKET */
+function market(){
+  const D=+$('dShift').value,S=+$('sShift').value,P=+$('testPrice').value;
+  const pe=(120+D-S)/2,qe=(120+D+S)/2,qd=Math.max(0,120+D-P),qs=Math.max(0,S+P);
+  $('dTxt').textContent=D>0?'+'+D:D;$('sTxt').textContent=S>0?'+'+S:S;$('pTxt').textContent=P;
+  $('eqPrice').textContent=pe.toFixed(1);$('eqQty').textContent=qe.toFixed(1);
+  const state=Math.abs(qd-qs)<.01?'Equilibrium':qd>qs?'Shortage':'Surplus';$('marketState').textContent=state;
+  $('marketNarrative').innerHTML=state==='Shortage'?`At P = ${P}, <b>Qd = ${qd}</b> and <b>Qs = ${qs}</b>. Quantity demanded exceeds quantity supplied, so there is a <b>shortage</b> and upward pressure on price. <span class="hu">Magyarul: túl sok vevő jut túl kevés termékre.</span>`:
+  state==='Surplus'?`At P = ${P}, <b>Qs = ${qs}</b> and <b>Qd = ${qd}</b>. Quantity supplied exceeds quantity demanded, so there is a <b>surplus</b> and downward pressure on price. <span class="hu">Magyarul: több termék van, mint amennyit ezen az áron megvennének.</span>`:
+  `At P = ${P}, Qd = Qs = ${qd}. The market is exactly at equilibrium.`;
+  const X=q=>60+q/180*425,Y=p=>342-p/135*290,pts=f=>{let a=[];for(let q=0;q<=180;q+=2){let p=f(q);if(p>=0&&p<=135)a.push(`${X(q)},${Y(p)}`)}return a.join(' ')};
+  $('marketChart').innerHTML=axes(520,410,'Quantity','Price')+`<polyline points="${pts(q=>120+D-q)}" fill="none" stroke="#45d6df" stroke-width="4"/>`+
+  `<polyline points="${pts(q=>q-S)}" fill="none" stroke="#ffb36b" stroke-width="4"/>`+
+  line(X(qe),Y(pe),X(qe),342,'#72e4ad',1,'5 5')+line(60,Y(pe),X(qe),Y(pe),'#72e4ad',1,'5 5')+
+  line(60,Y(P),485,Y(P),'#ff7fa9',2,'5 5')+`<circle cx="${X(qe)}" cy="${Y(pe)}" r="7" fill="#72e4ad" stroke="#fff" stroke-width="2"/>`+
+  text(X(qe)+10,Y(pe)-10,'E','#72e4ad',15)+text(75,52,'D','#45d6df',16)+text(455,52,'S','#ffb36b',16,'end');
+}
+['dShift','sShift','testPrice'].forEach(id=>$(id).oninput=market);
+document.querySelectorAll('[data-market-scene]').forEach(b=>b.onclick=()=>{let [d,s]=b.dataset.marketScene.split(',');$('dShift').value=d;$('sShift').value=s;$('testPrice').value=60;market()});
+market();
+
+function equationSolver(){
+  const A=+$('aDem').value,b=+$('bDem').value,C=+$('cSup').value,d=+$('dSup').value;
+  $('aTxt').textContent=A;$('bTxt').textContent=b.toFixed(1);$('cTxt').textContent=C;$('ddTxt').textContent=d.toFixed(1);
+  const P=(A-C)/(b+d),Q=A-b*P;
+  $('eqFormula').textContent=`Qd = ${A} − ${b.toFixed(1)}P    |    Qs = ${C} + ${d.toFixed(1)}P`;
+  $('eqSteps').innerHTML=`At equilibrium, <b>Qd = Qs</b>.<br>${A} − ${b.toFixed(1)}P = ${C} + ${d.toFixed(1)}P<br>${(A-C).toFixed(1)} = ${(b+d).toFixed(1)}P<br><b>P* = ${P.toFixed(2)}</b><br>Substitute back: Q* = ${A} − ${b.toFixed(1)} × ${P.toFixed(2)} = <b>${Q.toFixed(2)}</b>.`;
+}
+['aDem','bDem','cSup','dSup'].forEach(id=>$(id).oninput=equationSolver);equationSolver();
+
+/* SCENARIOS */
+const scenarios=[
+ {t:'Consumers suddenly love matcha.',x:'In the matcha market, tastes shift strongly in favor of matcha.',a:['Demand right','Demand left','Supply right','Supply left'],c:0,e:'Tastes are a demand determinant. More buyers want matcha at every price → demand shifts right → equilibrium price and quantity rise.'},
+ {t:'Coffee bean prices rise.',x:'Coffee shops face higher input costs.',a:['Demand right','Demand left','Supply right','Supply left'],c:3,e:'Input prices affect supply. Higher costs reduce supply at each market price → supply shifts left → price rises, quantity falls.'},
+ {t:'A new production technology arrives.',x:'Factories can produce the same product at lower cost.',a:['Demand right','Demand left','Supply right','Supply left'],c:2,e:'Technology is a supply determinant. Better technology increases supply → supply right → price falls, quantity rises.'},
+ {t:'The price of the product itself rises.',x:'Nothing else changes.',a:['Move up along demand','Demand shifts left','Supply shifts right','Both curves shift'],c:0,e:'A change in the good’s own price does not shift demand. It changes quantity demanded along the existing curve.'},
+ {t:'Income rises for a normal good.',x:'Consumers have more income and the product is normal.',a:['Demand right','Demand left','Supply right','Supply left'],c:0,e:'For a normal good, higher income increases demand at each price → demand shifts right.'},
+ {t:'Income rises for an inferior good.',x:'Consumers become richer and buy less of this product.',a:['Demand right','Demand left','Supply right','Supply left'],c:1,e:'For an inferior good, higher income reduces demand → demand shifts left.'},
+ {t:'A substitute becomes more expensive.',x:'The price of tea rises. What happens to demand for coffee, assuming they are substitutes?',a:['Coffee demand right','Coffee demand left','Coffee supply right','Coffee supply left'],c:0,e:'When the price of a substitute rises, consumers switch toward coffee → coffee demand shifts right.'},
+ {t:'A complement becomes more expensive.',x:'The price of game consoles rises. What happens to demand for console games?',a:['Games demand right','Games demand left','Games supply right','Games supply left'],c:1,e:'Consoles and console games are complements. A higher console price reduces demand for games → demand shifts left.'}
+];
+let si=0;
+function renderScenario(){
+  const q=scenarios[si];$('scenarioNum').textContent=`Scenario ${si+1} / ${scenarios.length}`;$('scenarioTitle').textContent=q.t;$('scenarioText').textContent=q.x;$('scenarioFeedback').textContent='Predict first. Then choose.';$('nextScenario').style.display='none';$('scenarioAnswers').innerHTML='';
+  q.a.forEach((a,i)=>{const b=document.createElement('button');b.className='btn';b.textContent=a;b.onclick=()=>{[...$('scenarioAnswers').children].forEach((x,j)=>{x.disabled=true;if(j===q.c)x.style.borderColor='var(--green)';else if(j===i)x.style.borderColor='var(--pink)'});$('scenarioFeedback').innerHTML=(i===q.c?'<b style="color:var(--green)">Correct.</b> ':'<b style="color:var(--pink)">Not quite.</b> ')+q.e;$('nextScenario').style.display='inline-block'};$('scenarioAnswers').appendChild(b)});
+}
+$('nextScenario').onclick=()=>{si=(si+1)%scenarios.length;renderScenario()};renderScenario();
+
+/* QUIZ */
+const quiz=[
+['What is scarcity?',['A temporary shortage only','The fact that resources are limited relative to wants','A situation where prices are zero','A type of tax'],1,'Scarcity is the fundamental condition that resources are limited while wants are not.'],
+['Opportunity cost is...',['Only the money you pay','The value of the next-best alternative forgone','Every possible alternative combined','A sunk cost'],1,'Economic cost includes what you give up, not only explicit money payments.'],
+['If MB > MC for one more unit, a rational decision-maker should...',['Increase the activity','Stop the activity','Ignore the marginal comparison','Look only at past costs'],0,'At the margin, an additional unit is worthwhile when its marginal benefit exceeds its marginal cost.'],
+['Which statement is normative?',['Inflation was 4% last year','A price ceiling can create shortage','The government should reduce inequality','Higher price reduces quantity demanded, ceteris paribus'],2,'“Should” expresses a value judgment; it is normative.'],
+['A point on the PPF is...',['Efficient','Always unattainable','Always inefficient','A normative statement'],0,'Points on the frontier use available resources efficiently.'],
+['A point inside the PPF is...',['Efficient and unattainable','Attainable but inefficient','Unattainable','Proof of inflation'],1,'The economy could produce more with existing resources.'],
+['An outward shift of the PPF can result from...',['Loss of resources','Technological improvement','Unused labor only','A lower market price'],1,'More resources or better technology expand productive capacity.'],
+['Absolute advantage asks...',['Who has lower opportunity cost','Who can produce with fewer inputs / higher productivity','Who has the highest wage','Who imports'],1,'Absolute advantage is about productivity; comparative advantage is about opportunity cost.'],
+['Comparative advantage asks...',['Who produces more total output','Who has lower opportunity cost','Who has more workers','Who exports more money'],1,'Lower opportunity cost determines comparative advantage.'],
+['Mutually beneficial terms of trade generally lie...',['Below both opportunity costs','Above both opportunity costs','Between the two opportunity costs','At zero'],2,'A trade price between opportunity costs can make both sides prefer trade to self-production.'],
+['The law of demand says, ceteris paribus...',['Higher price → higher quantity demanded','Higher price → lower quantity demanded','Demand always shifts left','Supply shifts right'],1,'Own-price changes move quantity demanded along the demand curve.'],
+['A rise in consumer income for a normal good causes...',['Demand right','Demand left','Supply right','Supply left'],0,'Normal-good demand rises with income.'],
+['The price of a substitute rises. Demand for the other good usually...',['Rises','Falls','Does not change','Becomes supply'],0,'Consumers substitute toward the relatively cheaper good.'],
+['The price of a complement rises. Demand for the other good usually...',['Rises','Falls','Supply rises','Nothing can be said'],1,'Complements are consumed together, so demand for one falls when the other becomes more expensive.'],
+['Higher input prices cause...',['Supply right','Supply left','Demand right','Demand left'],1,'Higher costs reduce willingness to supply at each market price.'],
+['Better production technology causes...',['Supply right','Supply left','Demand right','Demand left'],0,'Technology raises productive efficiency and increases supply.'],
+['Price above equilibrium tends to create...',['Shortage','Surplus','No imbalance','Demand shift'],1,'At a high price, Qs > Qd, creating a surplus.'],
+['Price below equilibrium tends to create...',['Surplus','Shortage','Supply shift','Perfect efficiency'],1,'At a low price, Qd > Qs, creating a shortage.'],
+['If demand shifts right and supply is unchanged, equilibrium...',['P↑ and Q↑','P↓ and Q↓','P↑ and Q↓','P↓ and Q↑'],0,'A demand increase raises both equilibrium price and quantity, ceteris paribus.'],
+['If supply shifts left and demand is unchanged, equilibrium...',['P↓ and Q↑','P↑ and Q↓','P↑ and Q↑','P↓ and Q↓'],1,'A supply decrease raises equilibrium price and lowers equilibrium quantity.']
+];
+let qi=0,score=0,answered=false;
+function renderBest(){const b=localStorage.getItem('econ-best-v2');$('bestScore').textContent=b?`Best: ${b} / ${quiz.length}`:'Best: —'}
+function renderQuiz(){
+  answered=false;const q=quiz[qi];$('quizCounter').textContent=`Question ${qi+1} / ${quiz.length}`;$('quizMeter').style.width=(qi/quiz.length*100)+'%';$('quizQuestion').textContent=q[0];$('quizFeedback').textContent='';$('quizNext').style.display='none';$('quizRestart').style.display='none';$('scoreNow').textContent=score;$('quizOptions').innerHTML='';
+  q[1].forEach((a,i)=>{let b=document.createElement('button');b.className='option';b.textContent=`${'ABCD'[i]}. ${a}`;b.onclick=()=>answerQuiz(i);$('quizOptions').appendChild(b)})
+}
+function answerQuiz(i){
+  if(answered)return;answered=true;const q=quiz[qi];if(i===q[2])score++;
+  [...$('quizOptions').children].forEach((b,j)=>{b.disabled=true;if(j===q[2])b.classList.add('correct');else if(j===i)b.classList.add('wrong')});
+  $('quizFeedback').innerHTML=(i===q[2]?'<b style="color:var(--green)">Correct.</b> ':'<b style="color:var(--pink)">Incorrect.</b> ')+q[3];$('scoreNow').textContent=score;$('quizNext').style.display='inline-block';$('quizNext').textContent=qi===quiz.length-1?'See result →':'Next →';
+}
+$('quizNext').onclick=()=>{qi++;if(qi>=quiz.length){const old=+(localStorage.getItem('econ-best-v2')||0);if(score>old)localStorage.setItem('econ-best-v2',score);$('quizMeter').style.width='100%';$('quizCounter').textContent='Completed';$('quizQuestion').textContent=`Final score: ${score} / ${quiz.length}`;$('quizOptions').innerHTML='';$('quizFeedback').innerHTML=score>=18?'Excellent. You are reading the basic mechanisms very well.':score>=14?'Good base. Review the explanations for the questions you missed.':'Revisit the interactive labs, especially PPF, comparative advantage and curve shifts.';$('quizNext').style.display='none';$('quizRestart').style.display='inline-block';renderBest()}else renderQuiz()};
+$('quizRestart').onclick=()=>{qi=0;score=0;renderQuiz()};renderBest();renderQuiz();
+
+/* FLASHCARDS */
+const flash=[
+['Scarcity','Limited resources relative to unlimited wants.','Szűkösség: nem lehet minden igényt egyszerre kielégíteni.'],
+['Trade-off','Choosing more of one thing means giving up something else.','Választási kényszer két cél között.'],
+['Opportunity cost','The value of the next-best alternative forgone.','A legjobb feladott alternatíva értéke.'],
+['Marginal benefit','Additional benefit from one more unit.','A következő egység többlethaszna.'],
+['Marginal cost','Additional cost from one more unit.','A következő egység többletköltsége.'],
+['PPF','The combinations of two goods that can be produced with available resources and technology.','Termelési lehetőségek határa.'],
+['Absolute advantage','Ability to produce with fewer inputs or greater productivity.','Ki termel hatékonyabban?'],
+['Comparative advantage','Ability to produce at lower opportunity cost.','Ki mond le kevesebbről?'],
+['Demand','Quantity buyers are willing and able to buy at different prices.','Vevői oldal.'],
+['Supply','Quantity sellers are willing and able to sell at different prices.','Eladói oldal.'],
+['Equilibrium','The price and quantity where Qd = Qs.','Kereslet és kínálat metszéspontja.'],
+['Shortage vs Surplus','Shortage: Qd > Qs. Surplus: Qs > Qd.','Hiány vs túlkínálat.']
+];let fi=0;
+function renderFlash(){const f=flash[fi];$('flashCount').textContent=`${fi+1} / ${flash.length}`;$('flashFront').textContent=f[0];$('flashBack').textContent=f[1];$('flashHu').textContent=f[2];$('flashcard').classList.remove('flipped')}
+$('flashcard').onclick=()=>$('flashcard').classList.toggle('flipped');$('flashPrev').onclick=()=>{fi=(fi-1+flash.length)%flash.length;renderFlash()};$('flashNext').onclick=()=>{fi=(fi+1)%flash.length;renderFlash()};renderFlash();
+
+const glossary=[
+['Ceteris paribus','other things equal'],['Efficiency','getting the maximum output from available resources'],['Equality','how evenly economic prosperity is distributed'],['Incentive','something that induces a person to act'],['Productivity','output produced per unit of input'],['Market','group of buyers and sellers of a good or service'],['Quantity demanded','amount buyers are willing and able to buy'],['Quantity supplied','amount sellers are willing and able to sell'],['Normal good','demand rises when income rises'],['Inferior good','demand falls when income rises'],['Substitutes','goods used in place of each other'],['Complements','goods used together']
+];
+$('glossary').innerHTML=glossary.map(([a,b])=>`<div class="gloss"><b>${a}</b><p>${b}</p></div>`).join('');
+</script>
+</body>
+</html>
